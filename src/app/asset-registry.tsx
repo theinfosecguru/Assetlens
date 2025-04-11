@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import {getActiveDirectoryAssets, ActiveDirectoryAsset} from '@/services/active-directory';
@@ -59,7 +61,45 @@ interface AssetRegistryTableProps {
   assets: Asset[];
 }
 
-const AssetRegistryTable: React.FC<AssetRegistryTableProps> = ({assets}) => {
+const AssetRegistry = async () => {
+  const dummyAssets = generateDummyAssets();
+
+  // Fetch assets from various sources
+  const activeDirectoryAssets = await getActiveDirectoryAssets();
+  const awsAssets = await getAWSAssets();
+  const azureAssets = await getAzureAssets();
+  const cyleraAssets = await getCyleraAssets();
+  const gcpAssets = await getGCPAssets();
+  const modbusAssets = await getModbusAssets();
+  const nmapAssets = await getNmapAssets();
+  const opcuaAssets = await getOPCUAAssets();
+  const sccmAssets = await getSCCMAssets();
+  const serviceNowAssets = await getServiceNowAssets();
+  const siemensRockwellAssets = await getSiemensRockwellAssets();
+
+  // Log the fetched assets (for debugging purposes)
+  console.log('Active Directory Assets:', activeDirectoryAssets);
+  console.log('AWS Assets:', awsAssets);
+  console.log('Azure Assets:', azureAssets);
+  console.log('Cylera Assets:', cyleraAssets);
+  console.log('GCP Assets:', gcpAssets);
+  console.log('Modbus Assets:', modbusAssets);
+  console.log('Nmap Assets:', nmapAssets);
+  console.log('OPC-UA Assets:', opcuaAssets);
+  console.log('SCCM Assets:', sccmAssets);
+  console.log('ServiceNow Assets:', serviceNowAssets);
+  console.log('Siemens Rockwell Assets:', siemensRockwellAssets);
+
+  return (
+    <AssetRegistryTableComponent assets={dummyAssets} />
+  );
+};
+
+export default AssetRegistry;
+
+//Move the client component into AssetRegistry
+
+const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}) => {
   const handleGetSummary = async (asset: Asset) => {
     const assetDetails = `
       Host Name: ${asset.hostName},
@@ -126,41 +166,3 @@ const AssetRegistryTable: React.FC<AssetRegistryTableProps> = ({assets}) => {
     </Table>
   );
 };
-
-const AssetRegistry = async () => {
-  const dummyAssets = generateDummyAssets();
-
-  // Fetch assets from various sources
-  const activeDirectoryAssets = await getActiveDirectoryAssets();
-  const awsAssets = await getAWSAssets();
-  const azureAssets = await getAzureAssets();
-  const cyleraAssets = await getCyleraAssets();
-  const gcpAssets = await getGCPAssets();
-  const modbusAssets = await getModbusAssets();
-  const nmapAssets = await getNmapAssets();
-  const opcuaAssets = await getOPCUAAssets();
-  const sccmAssets = await getSCCMAssets();
-  const serviceNowAssets = await getServiceNowAssets();
-  const siemensRockwellAssets = await getSiemensRockwellAssets();
-
-  // Log the fetched assets (for debugging purposes)
-  console.log('Active Directory Assets:', activeDirectoryAssets);
-  console.log('AWS Assets:', awsAssets);
-  console.log('Azure Assets:', azureAssets);
-  console.log('Cylera Assets:', cyleraAssets);
-  console.log('GCP Assets:', gcpAssets);
-  console.log('Modbus Assets:', modbusAssets);
-  console.log('Nmap Assets:', nmapAssets);
-  console.log('OPC-UA Assets:', opcuaAssets);
-  console.log('SCCM Assets:', sccmAssets);
-  console.log('ServiceNow Assets:', serviceNowAssets);
-  console.log('Siemens Rockwell Assets:', siemensRockwellAssets);
-
-  return (
-    <div>
-      <AssetRegistryTable assets={dummyAssets} />
-    </div>
-  );
-};
-
-export default AssetRegistry;
