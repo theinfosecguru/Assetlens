@@ -30,6 +30,7 @@ import {getTenableVulnerabilities} from "@/services/tenable";
 import {getQualysVulnerabilities} from "@/services/qualys";
 import {Badge} from "@/components/ui/badge";
 import {getAttckTechniques, AttckTechnique} from "@/services/attck";
+import { normalizeAsset } from "@/lib/normalize-asset";
 
 export type { ActiveDirectoryAsset, AWSAsset, AzureAsset, CyleraAsset, GCPAsset, ModbusAsset, NmapAsset, OPCUAAsset, SCCMAsset, ServiceNowAsset, SiemensRockwellAsset };
 
@@ -46,6 +47,7 @@ interface Asset {
   qualysVulnerabilities?: string;
   attckTechniques?: string;
   isEOL: boolean;
+  normalizedSchema?: string;
 }
 
 const AssetRegistry = () => {
@@ -112,12 +114,14 @@ const AssetRegistry = () => {
             const techniques = await getAttckTechniques(vulnerability.vulnerabilityName);
             attckTechniques = [...attckTechniques, ...techniques];
           }
+        const normalizedSchema = normalizeAsset(asset);
 
           return {
             ...asset,
             tenableVulnerabilities: tenableVulnerabilities.map(v => v.vulnerabilityName).join(', ') || 'None',
             qualysVulnerabilities: qualysVulnerabilities.map(v => v.title).join(', ') || 'None',
             attckTechniques: attckTechniques.map(t => t.name).join(', ') || 'None',
+              normalizedSchema: JSON.stringify(normalizedSchema, null, 2),
           };
         })
       );
@@ -177,6 +181,7 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
           <TableHead>Qualys Vulnerabilities</TableHead>
           <TableHead>ATT&CK Techniques</TableHead>
           <TableHead>EOL</TableHead>
+          <TableHead>Normalized Schema</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -200,6 +205,7 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
                 <Badge variant="outline">Active</Badge>
               )}
             </TableCell>
+             <TableCell>{asset.normalizedSchema}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -221,4 +227,3 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
     </Table>
   );
 };
-
