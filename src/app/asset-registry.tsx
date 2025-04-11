@@ -28,6 +28,7 @@ import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 import {assetSummary} from '@/ai/flows/asset-summary';
 import {getTenableVulnerabilities} from "@/services/tenable";
 import {getQualysVulnerabilities} from "@/services/qualys";
+import {Badge} from "@/components/ui/badge";
 
 export type { ActiveDirectoryAsset, AWSAsset, AzureAsset, CyleraAsset, GCPAsset, ModbusAsset, NmapAsset, OPCUAAsset, SCCMAsset, ServiceNowAsset, SiemensRockwellAsset };
 
@@ -42,6 +43,7 @@ interface Asset {
   assetType: 'IT' | 'OT' | 'Cloud';
   tenableVulnerabilities?: string;
   qualysVulnerabilities?: string;
+  isEOL: boolean;
 }
 
 const AssetRegistry = () => {
@@ -86,10 +88,11 @@ const AssetRegistry = () => {
           hostName: `Generic Asset ${index}`,
           location: 'Unknown',
           owner: 'Unknown',
-          lifecycleStage: 'Unknown',
+          lifecycleStage: 'Procurement',
           assetType: 'IT',
           tenableVulnerabilities: 'None', // Placeholder
           qualysVulnerabilities: 'None', // Placeholder
+          isEOL: index % 5 === 0, // Mock EOL status
         })
       });
 
@@ -159,6 +162,7 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
           <TableHead>Asset Type</TableHead>
           <TableHead>Tenable Vulnerabilities</TableHead>
           <TableHead>Qualys Vulnerabilities</TableHead>
+          <TableHead>EOL</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -174,6 +178,13 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
             <TableCell>{asset.assetType}</TableCell>
             <TableCell>{asset.tenableVulnerabilities}</TableCell>
             <TableCell>{asset.qualysVulnerabilities}</TableCell>
+            <TableCell>
+              {asset.isEOL ? (
+                <Badge variant="destructive">EOL</Badge>
+              ) : (
+                <Badge variant="outline">Active</Badge>
+              )}
+            </TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
