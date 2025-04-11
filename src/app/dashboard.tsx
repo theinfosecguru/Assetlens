@@ -7,7 +7,7 @@ import DashboardMain from './dashboard-main';
 
 const Dashboard = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-background">
       <Sidebar collapsible="icon">
         <DashboardSidebarContent />
       </Sidebar>

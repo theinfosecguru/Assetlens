@@ -2,9 +2,10 @@ import React from 'react';
 
 const ITAssetsPage = () => {
   return (
-    <div>
-      <h1>IT Assets</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-semibold mb-4">IT Assets</h1>
       <p>List of IT assets will be displayed here.</p>
+      {/* Placeholder for IT Assets list */}
     </div>
   );
 };

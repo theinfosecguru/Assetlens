@@ -1,15 +1,16 @@
-'use client';
-
 import React from 'react';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import AssetRegistryTable from './asset-registry-table';
+import {getActiveDirectoryAssets} from '@/services/active-directory';
+import {getAWSAssets} from '@/services/aws';
+import {getAzureAssets} from '@/services/azure';
+import {getCyleraAssets} from '@/services/cylera';
+import {getGCPAssets} from '@/services/gcp';
+import {getModbusAssets} from '@/services/modbus';
+import {getNmapAssets} from '@/services/nmap';
+import {getOPCUAAssets} from '@/services/opc-ua';
+import {getSCCMAssets} from '@/services/sccm';
+import {getServiceNowAssets} from '@/services/servicenow';
+import {getSiemensRockwellAssets} from '@/services/siemens-rockwell';
 
 interface Asset {
   id: string;
@@ -22,68 +23,56 @@ interface Asset {
   assetType: 'IT' | 'OT' | 'Cloud';
 }
 
-const DUMMY_ASSETS: Asset[] = [
-  {
-    id: '1',
-    ipAddress: '192.168.1.1',
-    macAddress: '00:1A:2B:3C:4D:5E',
-    hostName: 'Server-01',
-    location: 'Data Center',
-    owner: 'IT Department',
-    lifecycleStage: 'Production',
-    assetType: 'IT',
-  },
-  {
-    id: '2',
-    ipAddress: '192.168.1.2',
-    macAddress: '00:1A:2B:3C:4D:5F',
-    hostName: 'PLC-01',
-    location: 'Factory Floor',
-    owner: 'OT Department',
-    lifecycleStage: 'Production',
-    assetType: 'OT',
-  },
-  {
-    id: '3',
-    ipAddress: '192.168.1.3',
-    macAddress: '00:1A:2B:3C:4D:60',
-    hostName: 'VM-01',
-    location: 'AWS Cloud',
-    owner: 'Cloud Team',
-    lifecycleStage: 'Production',
-    assetType: 'Cloud',
-  },
-];
+const generateDummyAssets = (): Asset[] => {
+  const assets: Asset[] = [];
+  for (let i = 1; i <= 20; i++) {
+    assets.push({
+      id: i.toString(),
+      ipAddress: `192.168.1.${i}`,
+      macAddress: `00:1A:2B:3C:4D:${(50 + i).toString(16).toUpperCase()}`,
+      hostName: `Asset-${i}`,
+      location: `Location ${i}`,
+      owner: `Owner ${i}`,
+      lifecycleStage: 'Production',
+      assetType: i % 3 === 0 ? 'IT' : i % 3 === 1 ? 'OT' : 'Cloud',
+    });
+  }
+  return assets;
+};
 
-const AssetRegistry = () => {
+const AssetRegistry = async () => {
+  const dummyAssets = generateDummyAssets();
+
+  // Fetch assets from various sources
+  const activeDirectoryAssets = await getActiveDirectoryAssets();
+  const awsAssets = await getAWSAssets();
+  const azureAssets = await getAzureAssets();
+  const cyleraAssets = await getCyleraAssets();
+  const gcpAssets = await getGCPAssets();
+  const modbusAssets = await getModbusAssets();
+  const nmapAssets = await getNmapAssets();
+  const opcuaAssets = await getOPCUAAssets();
+  const sccmAssets = await getSCCMAssets();
+  const serviceNowAssets = await getServiceNowAssets();
+  const siemensRockwellAssets = await getSiemensRockwellAssets();
+
+  // Log the fetched assets (for debugging purposes)
+  console.log('Active Directory Assets:', activeDirectoryAssets);
+  console.log('AWS Assets:', awsAssets);
+  console.log('Azure Assets:', azureAssets);
+  console.log('Cylera Assets:', cyleraAssets);
+  console.log('GCP Assets:', gcpAssets);
+  console.log('Modbus Assets:', modbusAssets);
+  console.log('Nmap Assets:', nmapAssets);
+  console.log('OPC-UA Assets:', opcuaAssets);
+  console.log('SCCM Assets:', sccmAssets);
+  console.log('ServiceNow Assets:', serviceNowAssets);
+  console.log('Siemens Rockwell Assets:', siemensRockwellAssets);
+
   return (
-    <Table>
-      <TableCaption>A list of all assets in the network.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Host Name</TableHead>
-          <TableHead>IP Address</TableHead>
-          <TableHead>MAC Address</TableHead>
-          <TableHead>Location</TableHead>
-          <TableHead>Owner</TableHead>
-          <TableHead>Lifecycle Stage</TableHead>
-          <TableHead>Asset Type</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {DUMMY_ASSETS.map(asset => (
-          <TableRow key={asset.id}>
-            <TableCell>{asset.hostName}</TableCell>
-            <TableCell>{asset.ipAddress}</TableCell>
-            <TableCell>{asset.macAddress}</TableCell>
-            <TableCell>{asset.location}</TableCell>
-            <TableCell>{asset.owner}</TableCell>
-            <TableCell>{asset.lifecycleStage}</TableCell>
-            <TableCell>{asset.assetType}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div>
+      <AssetRegistryTable assets={dummyAssets} />
+    </div>
   );
 };
 
