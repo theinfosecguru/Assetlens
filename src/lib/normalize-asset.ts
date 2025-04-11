@@ -31,3 +31,4 @@ export async function normalizeAsset(asset: any): Promise<any> {
   return normalizedAsset;
 }
 
+
