@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {useState} from 'react';
@@ -59,25 +60,25 @@ const DataIngestionPage = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 rounded-md shadow-md bg-background">
       <h1 className="text-2xl font-semibold mb-4">Data Ingestion</h1>
-      <p className="mb-4">Ingest asset data from various sources.</p>
+      <p className="mb-4 text-muted-foreground">Ingest asset data from various sources.</p>
 
       <div className="mb-4">
-        <Label htmlFor="csvUpload">Upload CSV File:</Label>
+        <Label htmlFor="csvUpload" className="mb-2 block">Upload CSV File:</Label>
         <input type="file" id="csvUpload" accept=".csv" onChange={handleFileUpload} className="mt-1"/>
       </div>
 
       <div className="mb-4">
-        <Label htmlFor="csvData">CSV Data:</Label>
-        <Textarea id="csvData" value={csvData} readOnly className="mt-1"/>
+        <Label htmlFor="csvData" className="mb-2 block">CSV Data:</Label>
+        <Textarea id="csvData" value={csvData} readOnly className="mt-1 rounded-md shadow-sm"/>
       </div>
 
       <div>
-        <Label htmlFor="jsonData">JSON Data:</Label>
-        <Textarea id="jsonData" value={jsonData} readOnly className="mt-1"/>
+        <Label htmlFor="jsonData" className="mb-2 block">JSON Data:</Label>
+        <Textarea id="jsonData" value={jsonData} readOnly className="mt-1 rounded-md shadow-sm"/>
       </div>
-      <Button onClick={() => router.back()}>
+      <Button onClick={() => router.back()} className="mt-4">
         Back
       </Button>
     </div>

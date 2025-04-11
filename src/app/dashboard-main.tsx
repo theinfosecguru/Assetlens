@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -9,9 +10,9 @@ import ComplianceScorecard from './compliance-scorecard';
 
 const DashboardMain = () => {
   return (
-    <main className="flex-1 p-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+    <main className="flex-1 p-6 rounded-md shadow-md transition-colors duration-300 ease-in-out">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Asset Registry</CardTitle>
             <CardDescription>A list of all assets in the network</CardDescription>
@@ -22,7 +23,7 @@ const DashboardMain = () => {
         </Card>
 
         {/* Risk Heatmap Card */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Risk Heatmap</CardTitle>
             <CardDescription>Visualize risk levels across different assets.</CardDescription>
@@ -33,7 +34,7 @@ const DashboardMain = () => {
         </Card>
 
         {/* Asset Utilization Trend Analysis Card */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Asset Utilization Trend</CardTitle>
             <CardDescription>Analyze the trend of asset utilization over time.</CardDescription>
@@ -44,7 +45,7 @@ const DashboardMain = () => {
         </Card>
 
         {/* Compliance Scorecard Card */}
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Compliance Scorecard</CardTitle>
             <CardDescription>View compliance scores for different asset groups.</CardDescription>
