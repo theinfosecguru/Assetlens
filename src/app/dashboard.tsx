@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import {Sidebar} from '@/components/ui/sidebar';
 import DashboardSidebarContent from './dashboard-sidebar-content';

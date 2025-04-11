@@ -7,7 +7,7 @@ import RiskHeatmap from './risk-heatmap';
 import AssetUtilizationTrend from './asset-utilization-trend';
 import ComplianceScorecard from './compliance-scorecard';
 
-const DashboardMain = async () => {
+const DashboardMain = () => {
   return (
     <main className="flex-1 p-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -17,9 +17,9 @@ const DashboardMain = async () => {
             <CardDescription>A list of all assets in the network</CardDescription>
           </CardHeader>
           <CardContent>
+            <AssetRegistry />
           </CardContent>
         </Card>
-        <AssetRegistry />
 
         {/* Risk Heatmap Card */}
         <Card>
