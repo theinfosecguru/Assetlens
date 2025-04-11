@@ -166,3 +166,4 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
     </Table>
   );
 };
+
