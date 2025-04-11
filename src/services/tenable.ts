@@ -1,3 +1,5 @@
+'use server'
+// src/services/tenable.ts
 /**
  * Represents a vulnerability finding from Tenable.
  */
@@ -23,15 +25,41 @@ export interface TenableVulnerability {
  * @returns A promise that resolves to an array of TenableVulnerability objects.
  */
 export async function getTenableVulnerabilities(ipAddress: string): Promise<TenableVulnerability[]> {
-  // TODO: Implement this by calling the Tenable API.
-  // Placeholder data for demonstration purposes
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call delay
-  console.log(`Fetching Tenable vulnerabilities for IP: ${ipAddress}`);
-  return [
-    {
-      pluginId: 12345,
-      vulnerabilityName: 'CVE-2023-1234 - Some Vulnerability',
-      severity: 'Critical',
-    },
-  ];
+  const tenableApiKey = process.env.TENABLE_API_ACCESS_KEY;
+  const tenableSecretKey = process.env.TENABLE_API_SECRET_KEY;
+  const tenableApiUrl = `https://cloud.tenable.com/api/v2/vulnerabilities?ip=${ipAddress}`;
+
+  if (!tenableApiKey || !tenableSecretKey) {
+    console.error("Tenable API keys are not set in environment variables.");
+    return [];
+  }
+
+  try {
+    const response = await fetch(tenableApiUrl, {
+      headers: {
+        'X-ApiKeys': `accessKey=${tenableApiKey};secretKey=${tenableSecretKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`Tenable API error for IP ${ipAddress}:`, response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+
+    // Process the Tenable API response to extract vulnerabilities
+    const vulnerabilities: TenableVulnerability[] = data.vulnerabilities.map((v: any) => ({
+      pluginId: v.plugin_id,
+      vulnerabilityName: v.plugin_name,
+      severity: v.severity,
+    }));
+
+    return vulnerabilities;
+  } catch (error) {
+    console.error(`Error fetching Tenable vulnerabilities for IP ${ipAddress}:`, error);
+    return [];
+  }
 }
+
