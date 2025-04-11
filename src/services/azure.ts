@@ -1,7 +1,5 @@
 'use server';
 
-import { DefaultAzureCredential } from "@azure/identity";
-
 /**
  * Represents an asset in Azure.
  */
@@ -33,9 +31,17 @@ export async function getAzureAssets(): Promise<AzureAsset[]> {
   try {
     // Attempt to import the ResourceGraphClient
     const { ResourceGraphClient } = await import("@azure/arm-resourcegraph");
+    let DefaultAzureCredential;
+    try {
+      ({DefaultAzureCredential} = await import("@azure/identity"));
+    } catch (e) {
+      console.error('Failed to import @azure/identity, Azure authentication will not work', e);
+      return [];
+    }
 
     const credential = new DefaultAzureCredential();
     const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
+    const client = new ResourceGraphClient(credential);
 
     if (!subscriptionId) {
       console.error("Azure Subscription ID not set in environment variables.");

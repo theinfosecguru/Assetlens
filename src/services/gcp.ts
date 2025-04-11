@@ -1,7 +1,5 @@
 'use server';
 
-import { Compute } from '@google-cloud/compute';
-
 /**
  * Represents an asset in GCP.
  */
@@ -31,6 +29,7 @@ export interface GCPAsset {
  */
 export async function getGCPAssets(): Promise<GCPAsset[]> {
   try {
+    const {Compute} = await import('@google-cloud/compute');
     const compute = new Compute();
     const projectId = process.env.GCP_PROJECT_ID;
 
