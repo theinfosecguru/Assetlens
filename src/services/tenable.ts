@@ -24,6 +24,9 @@ export interface TenableVulnerability {
  */
 export async function getTenableVulnerabilities(ipAddress: string): Promise<TenableVulnerability[]> {
   // TODO: Implement this by calling the Tenable API.
+  // Placeholder data for demonstration purposes
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call delay
+  console.log(`Fetching Tenable vulnerabilities for IP: ${ipAddress}`);
   return [
     {
       pluginId: 12345,

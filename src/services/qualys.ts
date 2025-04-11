@@ -24,6 +24,8 @@ export interface QualysVulnerability {
  */
 export async function getQualysVulnerabilities(ipAddress: string): Promise<QualysVulnerability[]> {
   // TODO: Implement this by calling the Qualys API.
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call delay
+    console.log(`Fetching Qualys vulnerabilities for IP: ${ipAddress}`);
   return [
     {
       qid: 54321,

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {getActiveDirectoryAssets, ActiveDirectoryAsset} from '@/services/active-directory';
 import {getAWSAssets, AWSAsset} from '@/services/aws';
@@ -26,6 +26,8 @@ import {Button} from '@/components/ui/button';
 import {MoreHorizontal} from 'lucide-react';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
 import {assetSummary} from '@/ai/flows/asset-summary';
+import {getTenableVulnerabilities} from "@/services/tenable";
+import {getQualysVulnerabilities} from "@/services/qualys";
 
 export type { ActiveDirectoryAsset, AWSAsset, AzureAsset, CyleraAsset, GCPAsset, ModbusAsset, NmapAsset, OPCUAAsset, SCCMAsset, ServiceNowAsset, SiemensRockwellAsset };
 
@@ -38,66 +40,87 @@ interface Asset {
   owner: string;
   lifecycleStage: string;
   assetType: 'IT' | 'OT' | 'Cloud';
+  tenableVulnerabilities?: string;
+  qualysVulnerabilities?: string;
 }
 
-const generateDummyAssets = (): Asset[] => {
-  const assets: Asset[] = [];
-  for (let i = 1; i <= 20; i++) {
-    assets.push({
-      id: i.toString(),
-      ipAddress: `192.168.1.${i}`,
-      macAddress: `00:1A:2B:3C:4D:${(50 + i).toString(16).toUpperCase()}`,
-      hostName: `Asset-${i}`,
-      location: `Location ${i}`,
-      owner: `Owner ${i}`,
-      lifecycleStage: 'Production',
-      assetType: i % 3 === 0 ? 'IT' : i % 3 === 1 ? 'OT' : 'Cloud',
-    });
-  }
-  return assets;
-};
+const AssetRegistry = () => {
+  const [assets, setAssets] = useState<Asset[]>([]);
 
-interface AssetRegistryTableProps {
-  assets: Asset[];
-}
+  useEffect(() => {
+    const loadAssets = async () => {
+      // Fetch assets from various sources
+      const activeDirectoryAssets = await getActiveDirectoryAssets();
+      const awsAssets = await getAWSAssets();
+      const azureAssets = await getAzureAssets();
+      const cyleraAssets = await getCyleraAssets();
+      const gcpAssets = await getGCPAssets();
+      const modbusAssets = await getModbusAssets();
+      const nmapAssets = await getNmapAssets();
+      const opcuaAssets = await getOPCUAAssets();
+      const sccmAssets = await getSCCMAssets();
+      const serviceNowAssets = await getServiceNowAssets();
+      const siemensRockwellAssets = await getSiemensRockwellAssets();
 
-const AssetRegistry = async () => {
-  const dummyAssets = generateDummyAssets();
+      //Consolidate Assets
 
-  // Fetch assets from various sources
-  const activeDirectoryAssets = await getActiveDirectoryAssets();
-  const awsAssets = await getAWSAssets();
-  const azureAssets = await getAzureAssets();
-  const cyleraAssets = await getCyleraAssets();
-  const gcpAssets = await getGCPAssets();
-  const modbusAssets = await getModbusAssets();
-  const nmapAssets = await getNmapAssets();
-  const opcuaAssets = await getOPCUAAssets();
-  const sccmAssets = await getSCCMAssets();
-  const serviceNowAssets = await getServiceNowAssets();
-  const siemensRockwellAssets = await getSiemensRockwellAssets();
+      const consolidatedAssets: Asset[] = [];
 
-  // Log the fetched assets (for debugging purposes)
-  console.log('Active Directory Assets:', activeDirectoryAssets);
-  console.log('AWS Assets:', awsAssets);
-  console.log('Azure Assets:', azureAssets);
-  console.log('Cylera Assets:', cyleraAssets);
-  console.log('GCP Assets:', gcpAssets);
-  console.log('Modbus Assets:', modbusAssets);
-  console.log('Nmap Assets:', nmapAssets);
-  console.log('OPC-UA Assets:', opcuaAssets);
-  console.log('SCCM Assets:', sccmAssets);
-  console.log('ServiceNow Assets:', serviceNowAssets);
-  console.log('Siemens Rockwell Assets:', siemensRockwellAssets);
+      [
+        ...activeDirectoryAssets.map(a => ({...a, source: 'Active Directory'})),
+        ...awsAssets.map(a => ({...a, source: 'AWS'})),
+        ...azureAssets.map(a => ({...a, source: 'Azure'})),
+        ...cyleraAssets.map(a => ({...a, source: 'Cylera'})),
+        ...gcpAssets.map(a => ({...a, source: 'GCP'})),
+        ...modbusAssets.map(a => ({...a, source: 'Modbus'})),
+        ...nmapAssets.map(a => ({...a, source: 'Nmap'})),
+        ...opcuaAssets.map(a => ({...a, source: 'OPC-UA'})),
+        ...sccmAssets.map(a => ({...a, source: 'SCCM'})),
+        ...serviceNowAssets.map(a => ({...a, source: 'ServiceNow'})),
+        ...siemensRockwellAssets.map(a => ({...a, source: 'Siemens Rockwell'})),
+      ].forEach((asset, index) => {
+        consolidatedAssets.push({
+          id: index.toString(),
+          ipAddress: '127.0.0.1', // Dummy IP
+          macAddress: '00:00:00:00:00:00', // Dummy MAC
+          hostName: `Generic Asset ${index}`,
+          location: 'Unknown',
+          owner: 'Unknown',
+          lifecycleStage: 'Unknown',
+          assetType: 'IT',
+          tenableVulnerabilities: 'None', // Placeholder
+          qualysVulnerabilities: 'None', // Placeholder
+        })
+      });
+
+      // Fetch vulnerabilities for each asset
+      const assetsWithVulnerabilities = await Promise.all(
+        consolidatedAssets.map(async (asset) => {
+          const tenableVulnerabilities = await getTenableVulnerabilities(asset.ipAddress);
+          const qualysVulnerabilities = await getQualysVulnerabilities(asset.ipAddress);
+
+          return {
+            ...asset,
+            tenableVulnerabilities: tenableVulnerabilities.map(v => v.vulnerabilityName).join(', ') || 'None',
+            qualysVulnerabilities: qualysVulnerabilities.map(v => v.title).join(', ') || 'None',
+          };
+        })
+      );
+      setAssets(assetsWithVulnerabilities);
+    };
+    loadAssets();
+  }, []);
 
   return (
-    <AssetRegistryTableComponent assets={dummyAssets} />
+    <AssetRegistryTableComponent assets={assets} />
   );
 };
 
 export default AssetRegistry;
 
-//Move the client component into AssetRegistry
+interface AssetRegistryTableProps {
+  assets: Asset[];
+}
 
 const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}) => {
   const handleGetSummary = async (asset: Asset) => {
@@ -108,7 +131,9 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
       Location: ${asset.location},
       Owner: ${asset.owner},
       Lifecycle Stage: ${asset.lifecycleStage},
-      Asset Type: ${asset.assetType}
+      Asset Type: ${asset.assetType},
+      Tenable Vulnerabilities: ${asset.tenableVulnerabilities},
+      Qualys Vulnerabilities: ${asset.qualysVulnerabilities}
     `;
 
     try {
@@ -132,6 +157,8 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
           <TableHead>Owner</TableHead>
           <TableHead>Lifecycle Stage</TableHead>
           <TableHead>Asset Type</TableHead>
+          <TableHead>Tenable Vulnerabilities</TableHead>
+          <TableHead>Qualys Vulnerabilities</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -145,6 +172,8 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
             <TableCell>{asset.owner}</TableCell>
             <TableCell>{asset.lifecycleStage}</TableCell>
             <TableCell>{asset.assetType}</TableCell>
+            <TableCell>{asset.tenableVulnerabilities}</TableCell>
+            <TableCell>{asset.qualysVulnerabilities}</TableCell>
             <TableCell className="text-right">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -166,4 +195,3 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
     </Table>
   );
 };
-
