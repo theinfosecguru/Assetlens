@@ -20,21 +20,48 @@ const DataIngestionPage = () => {
     reader.onload = (e) => {
       const result = e.target?.result;
       if (typeof result === 'string') {
-        setCsvData(result);
-        try {
-          const parsedJson = csvToJson(result);
-          setJsonData(JSON.stringify(parsedJson, null, 2));
-          toast({
-            title: "Success",
-            description: "CSV parsed successfully",
-          })
-        } catch (error) {
-          console.error('CSV to JSON conversion error:', error);
+        if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+          setCsvData(result);
+          try {
+            const parsedJson = csvToJson(result);
+            setJsonData(JSON.stringify(parsedJson, null, 2));
+            toast({
+              title: "Success",
+              description: "CSV parsed successfully",
+            })
+          } catch (error) {
+            console.error('CSV to JSON conversion error:', error);
+            toast({
+              title: "Error",
+              description: "CSV parsing failed",
+              variant: "destructive"
+            })
+          }
+        } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
+          try {
+            const parsedJson = JSON.parse(result);
+            setJsonData(JSON.stringify(parsedJson, null, 2));
+            setCsvData('');
+            toast({
+              title: "Success",
+              description: "JSON parsed successfully",
+            })
+          } catch (error) {
+            console.error('JSON parsing error:', error);
+            toast({
+              title: "Error",
+              description: "JSON parsing failed",
+              variant: "destructive"
+            })
+          }
+        } else {
           toast({
             title: "Error",
-            description: "CSV parsing failed",
+            description: "Unsupported file type. Please upload CSV or JSON.",
             variant: "destructive"
-          })
+          });
+          setCsvData('');
+          setJsonData('');
         }
       }
     };
@@ -64,8 +91,8 @@ const DataIngestionPage = () => {
       <p className="mb-4 text-muted-foreground">Ingest asset data from various sources.</p>
 
       <div className="mb-4">
-        <Label htmlFor="csvUpload" className="mb-2 block">Upload CSV File:</Label>
-        <input type="file" id="csvUpload" accept=".csv" onChange={handleFileUpload} className="mt-1"/>
+        <Label htmlFor="fileUpload" className="mb-2 block">Upload CSV or JSON File:</Label>
+        <input type="file" id="fileUpload" accept=".csv, .json" onChange={handleFileUpload} className="mt-1"/>
       </div>
 
       <div className="mb-4">
@@ -85,3 +112,5 @@ const DataIngestionPage = () => {
 };
 
 export default DataIngestionPage;
+
+    
