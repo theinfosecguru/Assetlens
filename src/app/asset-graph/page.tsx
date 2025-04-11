@@ -1,15 +1,10 @@
 'use client';
 
 import React from 'react';
-import {
-  ResponsiveContainer,
-  Graph,
-  Cell,
-  Tooltip,
-} from 'recharts';
+import ForceGraph2D from 'react-force-graph-2d';
 
 interface GraphNode {
-  name: string;
+  id: string;
 }
 
 interface GraphLink {
@@ -18,13 +13,13 @@ interface GraphLink {
 }
 
 const data = {
-  nodes: [
-    { name: 'Asset A' },
-    { name: 'Asset B' },
-    { name: 'Asset C' },
-    { name: 'Asset D' },
-    { name: 'Asset E' },
-  ] as GraphNode[],
+  nodes: [    
+    { id: 'Asset A' },
+    { id: 'Asset B' },
+    { id: 'Asset C' },
+    { id: 'Asset D' },
+    { id: 'Asset E' }
+  ] as GraphNode[],  
   links: [
     { source: 'Asset A', target: 'Asset B' },
     { source: 'Asset A', target: 'Asset C' },
@@ -37,17 +32,16 @@ const AssetGraphPage = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-semibold mb-4">Asset Graph</h1>
-      <p className="mb-4">Graphical representation of asset relationships.</p>
-      <ResponsiveContainer width="100%" height={600}>
-        <Graph data={data} linkCurvature={0.8} linkStroke="#888">
-          {
-            data.nodes.map((node, index) => (
-              <Cell key={`node-${index}`} fill="#82ca9d" />
-            ))
-          }
-          <Tooltip/>
-        </Graph>
-      </ResponsiveContainer>
+      <p className="mb-4">Graphical representation of asset relationships.</p>      
+      <ForceGraph2D        
+        graphData={data}
+        width={800}
+        height={600}
+        nodeLabel="id"
+        linkDirectionalArrowLength={4}
+        linkDirectionalArrowRelPos={1}
+        nodeCanvasObject={(node, ctx, globalScale) => { const label = node.id; ctx.font = `12px Sans-Serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "black"; ctx.fillText(label, node.x!, node.y!);}}
+      />
     </div>
   );
 };
