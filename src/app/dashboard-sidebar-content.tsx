@@ -44,6 +44,10 @@ const DashboardSidebarContent = () => {
             <Icons.crownJewel className="mr-2 h-4 w-4" />
             <span>Crown Jewels</span>
           </SidebarMenuButton>
+          <SidebarMenuButton onClick={() => router.push('/asset-graph')}>
+            <Icons.assetGraph className="mr-2 h-4 w-4" />
+            <span>Asset Graph</span>
+          </SidebarMenuButton>
         </SidebarMenu>
       </SidebarGroup>
       <SidebarSeparator />

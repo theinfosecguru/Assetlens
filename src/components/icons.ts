@@ -32,6 +32,7 @@ import {
   Laptop as ITAssetIcon,
   Router as OTAssetIcon,
   Star as CrownJewelIcon,
+  GitFork as AssetGraphIcon,
 } from 'lucide-react';
 
 const Icons = {
@@ -66,6 +67,7 @@ const Icons = {
   otAsset: OTAssetIcon,
   cloudAsset: CloudIcon,
   crownJewel: CrownJewelIcon,
+  assetGraph: AssetGraphIcon,
 };
 
 export {Icons};
