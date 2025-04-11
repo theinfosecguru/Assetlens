@@ -29,6 +29,7 @@ import {assetSummary} from '@/ai/flows/asset-summary';
 import {getTenableVulnerabilities} from "@/services/tenable";
 import {getQualysVulnerabilities} from "@/services/qualys";
 import {Badge} from "@/components/ui/badge";
+import {getAttckTechniques, AttckTechnique} from "@/services/attck";
 
 export type { ActiveDirectoryAsset, AWSAsset, AzureAsset, CyleraAsset, GCPAsset, ModbusAsset, NmapAsset, OPCUAAsset, SCCMAsset, ServiceNowAsset, SiemensRockwellAsset };
 
@@ -43,6 +44,7 @@ interface Asset {
   assetType: 'IT' | 'OT' | 'Cloud';
   tenableVulnerabilities?: string;
   qualysVulnerabilities?: string;
+  attckTechniques?: string;
   isEOL: boolean;
 }
 
@@ -92,20 +94,30 @@ const AssetRegistry = () => {
           assetType: 'IT',
           tenableVulnerabilities: 'None', // Placeholder
           qualysVulnerabilities: 'None', // Placeholder
+          attckTechniques: 'None',
           isEOL: index % 5 === 0, // Mock EOL status
         })
       });
 
-      // Fetch vulnerabilities for each asset
+      // Fetch vulnerabilities and ATT&CK techniques for each asset
       const assetsWithVulnerabilities = await Promise.all(
         consolidatedAssets.map(async (asset) => {
           const tenableVulnerabilities = await getTenableVulnerabilities(asset.ipAddress);
           const qualysVulnerabilities = await getQualysVulnerabilities(asset.ipAddress);
 
+          let allVulnerabilities = [...tenableVulnerabilities, ...qualysVulnerabilities];
+          let attckTechniques: AttckTechnique[] = [];
+
+          for (const vulnerability of allVulnerabilities) {
+            const techniques = await getAttckTechniques(vulnerability.vulnerabilityName);
+            attckTechniques = [...attckTechniques, ...techniques];
+          }
+
           return {
             ...asset,
             tenableVulnerabilities: tenableVulnerabilities.map(v => v.vulnerabilityName).join(', ') || 'None',
             qualysVulnerabilities: qualysVulnerabilities.map(v => v.title).join(', ') || 'None',
+            attckTechniques: attckTechniques.map(t => t.name).join(', ') || 'None',
           };
         })
       );
@@ -136,7 +148,8 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
       Lifecycle Stage: ${asset.lifecycleStage},
       Asset Type: ${asset.assetType},
       Tenable Vulnerabilities: ${asset.tenableVulnerabilities},
-      Qualys Vulnerabilities: ${asset.qualysVulnerabilities}
+      Qualys Vulnerabilities: ${asset.qualysVulnerabilities},
+      ATT&CK Techniques: ${asset.attckTechniques}
     `;
 
     try {
@@ -162,6 +175,7 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
           <TableHead>Asset Type</TableHead>
           <TableHead>Tenable Vulnerabilities</TableHead>
           <TableHead>Qualys Vulnerabilities</TableHead>
+          <TableHead>ATT&CK Techniques</TableHead>
           <TableHead>EOL</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -178,6 +192,7 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
             <TableCell>{asset.assetType}</TableCell>
             <TableCell>{asset.tenableVulnerabilities}</TableCell>
             <TableCell>{asset.qualysVulnerabilities}</TableCell>
+            <TableCell>{asset.attckTechniques}</TableCell>
             <TableCell>
               {asset.isEOL ? (
                 <Badge variant="destructive">EOL</Badge>
@@ -206,3 +221,4 @@ const AssetRegistryTableComponent: React.FC<AssetRegistryTableProps> = ({assets}
     </Table>
   );
 };
+

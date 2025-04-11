@@ -1,6 +1,5 @@
 'use server';
 
-import { ResourceGraphClient } from "@azure/arm-resourcegraph";
 import { DefaultAzureCredential } from "@azure/identity";
 
 /**
@@ -32,8 +31,10 @@ export interface AzureAsset {
  */
 export async function getAzureAssets(): Promise<AzureAsset[]> {
   try {
+    // Attempt to import the ResourceGraphClient
+    const { ResourceGraphClient } = await import("@azure/arm-resourcegraph");
+
     const credential = new DefaultAzureCredential();
-    const client = new ResourceGraphClient(credential);
     const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
 
     if (!subscriptionId) {
@@ -54,7 +55,7 @@ export async function getAzureAssets(): Promise<AzureAsset[]> {
 
     return azureAssets;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching Azure assets:", error);
     return [];
   }
