@@ -43,7 +43,8 @@ const DataIngestionPage = () => {
             setJsonData(JSON.stringify(parsedJson, null, 2));
             setCsvData('');
             toast({
-              title: "Success",
+                title: "Success",
+
               description: "JSON parsed successfully",
             })
           } catch (error) {
@@ -91,10 +92,12 @@ const DataIngestionPage = () => {
       <p className="mb-4 text-muted-foreground">Ingest asset data from various sources.</p>
 
       <div className="mb-4">
-        <Label htmlFor="fileUpload" className="mb-2 block">Upload CSV or JSON File:</Label>
-        <input type="file" id="fileUpload" accept=".csv, .json" onChange={handleFileUpload} className="mt-1"/>
+          <Label htmlFor="fileUpload" className="mb-2 block">Upload File</Label>
+          <input type="file" id="fileUpload" accept=".csv, .json" onChange={handleFileUpload} className="mt-1"/>
       </div>
-
+        <div className="mb-4">
+            <Label htmlFor="csvData" className="mb-2 block">CSV Data:</Label>
+            <Textarea id="csvData" value={csvData} readOnly className="mt-1 rounded-md shadow-sm"/>
       <div className="mb-4">
         <Label htmlFor="csvData" className="mb-2 block">CSV Data:</Label>
         <Textarea id="csvData" value={csvData} readOnly className="mt-1 rounded-md shadow-sm"/>
@@ -107,6 +110,7 @@ const DataIngestionPage = () => {
       <Button onClick={() => router.back()} className="mt-4">
         Back
       </Button>
+    </div>
     </div>
   );
 };
