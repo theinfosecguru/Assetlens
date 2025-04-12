@@ -46,7 +46,7 @@ const AssetGraphPage = () => {
         nodeLabel="id"
         linkDirectionalArrowLength={4}
         linkDirectionalArrowRelPos={1}
-        nodeCanvasObject={(node, ctx, globalScale) => { const label = node.id; ctx.font = `12px Sans-Serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "black"; ctx.fillText(label, node.x!, node.y!);}}
+        nodeCanvasObject={(node, ctx, globalScale) => { const label = node.id; ctx.font = `12px Sans-Serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "black"; ctx.fillText(label, node.x ?? 0, node.y ?? 0);}}
       />
     </div>
   );
