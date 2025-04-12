@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
+import dynamic from 'next/dynamic';
+
 
 interface GraphNode {
   id: string;
@@ -27,6 +28,11 @@ const data = {
     { source: 'Asset C', target: 'Asset E' },
   ] as GraphLink[],
 };
+
+const ForceGraph2D = dynamic(
+  () => import('react-force-graph-2d'),
+  { ssr: false }
+);
 
 const AssetGraphPage = () => {
   return (
