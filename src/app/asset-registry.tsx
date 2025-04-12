@@ -1,5 +1,7 @@
 'use client';
 
+
+
 import React, {useState, useEffect} from 'react';
 
 import {getActiveDirectoryAssets, ActiveDirectoryAsset} from '@/services/active-directory';
@@ -31,6 +33,8 @@ import {getQualysVulnerabilities} from "@/services/qualys";
 import {Badge} from "@/components/ui/badge";
 import {getAttckTechniques, AttckTechnique} from "@/services/attck";
 import { normalizeAsset } from "@/lib/normalize-asset";
+
+let uploadedAssets: any[] = [];
 
 export type { ActiveDirectoryAsset, AWSAsset, AzureAsset, CyleraAsset, GCPAsset, ModbusAsset, NmapAsset, OPCUAAsset, SCCMAsset, ServiceNowAsset, SiemensRockwellAsset };
 
@@ -89,17 +93,41 @@ const AssetRegistry = () => {
           id: index.toString(),
           ipAddress: '127.0.0.1', // Dummy IP
           macAddress: '00:00:00:00:00:00', // Dummy MAC
-          hostName: `Generic Asset ${index}`,
+          hostName: `Generic Asset ${index}`,          
           location: 'Unknown',
           owner: 'Unknown',
-          lifecycleStage: 'Procurement',
-          assetType: 'IT',
-          tenableVulnerabilities: 'None', // Placeholder
+          lifecycleStage: 'Procurement',          assetType: 'IT',          tenableVulnerabilities: 'None', // Placeholder
           qualysVulnerabilities: 'None', // Placeholder
           attckTechniques: 'None',
           isEOL: index % 5 === 0, // Mock EOL status
         })
       });
+
+        // Add assets from uploaded data
+        if(uploadedAssets.length > 0) {
+          uploadedAssets.forEach((uploadedAsset, index) => {
+            const assetWithDefaults: Asset = {
+              id: uploadedAsset.id || `uploaded-${consolidatedAssets.length + index}`, // Generate unique ID
+              ipAddress: uploadedAsset.ipAddress || 'Unknown',
+              macAddress: uploadedAsset.macAddress || 'Unknown',
+              hostName: uploadedAsset.hostName || 'Unknown',
+              location: uploadedAsset.location || 'Unknown',
+              owner: uploadedAsset.owner || 'Unknown',
+              lifecycleStage: uploadedAsset.lifecycleStage || 'Unknown',
+              assetType: uploadedAsset.assetType || 'IT',
+              tenableVulnerabilities: uploadedAsset.tenableVulnerabilities || 'None',
+              qualysVulnerabilities: uploadedAsset.qualysVulnerabilities || 'None',
+              attckTechniques: uploadedAsset.attckTechniques || 'None',
+              isEOL: uploadedAsset.isEOL !== undefined ? uploadedAsset.isEOL : false,
+              normalizedSchema: uploadedAsset.normalizedSchema || 'Unknown',
+            };
+      
+            // Add the asset with defaults to the list
+            consolidatedAssets.push(assetWithDefaults);
+          });
+          
+          
+        }
 
       // Fetch vulnerabilities and ATT&CK techniques for each asset
       const assetsWithVulnerabilities = await Promise.all(
@@ -111,7 +139,10 @@ const AssetRegistry = () => {
           let attckTechniques: AttckTechnique[] = [];
 
           for (const vulnerability of allVulnerabilities) {
-            const techniques = await getAttckTechniques(vulnerability.vulnerabilityName);
+            const vulnerabilityName = 'vulnerabilityName' in vulnerability
+              ? vulnerability.vulnerabilityName
+              : vulnerability.title;
+            const techniques = await getAttckTechniques(vulnerabilityName);
             attckTechniques = [...attckTechniques, ...techniques];
           }
         const normalizedSchema = normalizeAsset(asset);
@@ -125,6 +156,7 @@ const AssetRegistry = () => {
           };
         })
       );
+        console.log('consolidated assets', assetsWithVulnerabilities)
       setAssets(assetsWithVulnerabilities);
     };
     loadAssets();

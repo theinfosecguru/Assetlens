@@ -2,71 +2,85 @@
 
 import React, {useState} from 'react';
 import {Button} from '@/components/ui/button';
-import {Textarea} from '@/components/ui/textarea';
 import {Label} from '@/components/ui/label';
 import {toast} from "@/hooks/use-toast"
 import {useRouter} from "next/navigation";
 
+let uploadedAssets: any[] = []; // In-memory store for uploaded assets
+
 const DataIngestionPage = () => {
-  const [csvData, setCsvData] = useState<string>('');
-  const [jsonData, setJsonData] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const router = useRouter();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    setSelectedFile(file || null);
+  };
 
+  const handleUpload = () => {
+    if (!selectedFile) return;
+
+    toast({ title: "Uploading Data", description: "Processing file..." });
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result;
       if (typeof result === 'string') {
-        if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-          setCsvData(result);
-          try {
-            const parsedJson = csvToJson(result);
-            setJsonData(JSON.stringify(parsedJson, null, 2));
+        try {
+          if (selectedFile.type === 'text/csv' || selectedFile.name.toLowerCase().endsWith('.csv')) {
+            uploadedAssets = [];
+
+            const parsedCsv = csvToJson(result);
+            console.log("CSV Data for workflow integration:", parsedCsv);
+            uploadedAssets.push(...parsedCsv);
             toast({
               title: "Success",
-              description: "CSV parsed successfully",
-            })
-          } catch (error) {
-            console.error('CSV to JSON conversion error:', error);
-            toast({
-              title: "Error",
-              description: "CSV parsing failed",
-              variant: "destructive"
-            })
-          }
-        } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
-          try {
-            const parsedJson = JSON.parse(result);
-            setJsonData(JSON.stringify(parsedJson, null, 2));
-            setCsvData('');
-            toast({
-                title: "Success",
+              description: "CSV data successfully ingested into workflow!",
+              })
+              
 
-              description: "JSON parsed successfully",
-            })
-          } catch (error) {
-            console.error('JSON parsing error:', error);
+          } else if (selectedFile.type === 'application/json' || selectedFile.name.toLowerCase().endsWith('.json')) {
+
+            uploadedAssets = [];
+
+            try {
+              const parsed = JSON.parse(result);
+                if (Array.isArray(parsed)) {
+                    uploadedAssets.push(...parsed);
+                  } else {
+                    uploadedAssets.push(parsed); // Wrap in array if not an array
+                  }
+
+                toast({
+                  title: "Success",
+                  description: "JSON data successfully ingested into workflow!",
+                 
+                })
+            } catch(error){
+                console.error('JSON parsing error', error);
+                toast({
+                  title: "Error",
+                  description: "JSON parsing failed",
+                  variant: "destructive"
+                });
+            }
+
+          }else {
             toast({
               title: "Error",
-              description: "JSON parsing failed",
+              description: "Unsupported file type. Please upload CSV or JSON.",
               variant: "destructive"
-            })
+            });
           }
-        } else {
+        } catch (error) {
           toast({
             title: "Error",
-            description: "Unsupported file type. Please upload CSV or JSON.",
+            description: "File Ingestion failed",
             variant: "destructive"
-          });
-          setCsvData('');
-          setJsonData('');
+          })
         }
       }
     };
-    reader.readAsText(file);
+    reader.readAsText(selectedFile);
   };
 
   const csvToJson = (csv: string): any[] => {
@@ -93,28 +107,17 @@ const DataIngestionPage = () => {
 
       <div className="mb-4">
           <Label htmlFor="fileUpload" className="mb-2 block">Upload File</Label>
-          <input type="file" id="fileUpload" accept=".csv, .json" onChange={handleFileUpload} className="mt-1"/>
+          <input type="file" id="fileUpload" accept=".csv, .json" onChange={handleFileChange} className="mt-1"/>
       </div>
-        <div className="mb-4">
-            <Label htmlFor="csvData" className="mb-2 block">CSV Data:</Label>
-            <Textarea id="csvData" value={csvData} readOnly className="mt-1 rounded-md shadow-sm"/>
-      <div className="mb-4">
-        <Label htmlFor="csvData" className="mb-2 block">CSV Data:</Label>
-        <Textarea id="csvData" value={csvData} readOnly className="mt-1 rounded-md shadow-sm"/>
-      </div>
-
-      <div>
-        <Label htmlFor="jsonData" className="mb-2 block">JSON Data:</Label>
-        <Textarea id="jsonData" value={jsonData} readOnly className="mt-1 rounded-md shadow-sm"/>
-      </div>
-      <Button onClick={() => router.back()} className="mt-4">
+      <Button onClick={handleUpload} disabled={!selectedFile} className="mt-4">
+          Upload
+      </Button>
+      
+      <Button onClick={() => router.back()} className="mt-4">        
         Back
       </Button>
-    </div>
     </div>
   );
 };
 
 export default DataIngestionPage;
-
-    

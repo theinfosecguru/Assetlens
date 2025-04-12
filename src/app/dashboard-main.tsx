@@ -29,7 +29,6 @@ const DashboardMain = () => {
             <AssetRegistry />
           </CardContent>
         </Card>
-
         {/* Risk Heatmap Card */}
         <Card className="hover:shadow-lg transition-shadow duration-300">
           <CardHeader>
@@ -61,7 +60,9 @@ const DashboardMain = () => {
           <CardContent>
             <ComplianceScorecard />
           </CardContent>
-        </Card>
+        </Card>        
+      </div>
+      <div className='mt-4'>
         <AiQuery data={dummyData} />
       </div>
     </main>
